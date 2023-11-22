@@ -18,8 +18,6 @@ router.use(expressFileUpload(
 //router.put('/:tipo/:id', validarJWT, uploadFile);
 router.put('/:tipo/:id', validarJWT, uploadFileCloud);
 
-
-
 router.get('/:tipo/:foto',  mostrarImagen);
 
 

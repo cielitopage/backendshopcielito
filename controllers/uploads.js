@@ -8,13 +8,12 @@ const path = require('path');
 const Usuario = require('../models/usuario');
 const Producto = require('../models/producto');
 const Categoria = require('../models/categoria');
+const Article = require('../models/article');
 const { actualizarImagen } = require('../helpers/actualizar-imagen');
 
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config(process.env.CLOUDINARY_URL);
-
-
 
 
 // cloudinary.config({
@@ -91,22 +90,44 @@ const uploadFileCloud = async(req, res = response) => {
         })
     }
 
-    // Validar que exista un archivo
+    // Validar que exista dos archivos     
     if (!req.files || Object.keys(req.files).length === 0) {
+
+        console.log("req.files",req.files);
         return res.status(400).json({
             msg: 'No hay ningun archivo cargado'
         })
     }
- 
+
+    // Procesar la imagen   
    try {
-    const {tempFilePath} = req.files.imagen
+
+
+
+    if(req.files.imagen){    
+    
+
+    const {tempFilePath}= req.files.imagen
     const {secure_url} = await cloudinary.uploader.upload(tempFilePath,{folder:tipo});
+
     const nombreArchivo = secure_url;
-    actualizarImagen(tipo, id,nombreArchivo);
+    actualizarImagen(tipo, id,nombreArchivo,null);
     res.json({
         msg: 'Archivo subido correctamente',
         nombreArchivo
-    })
+    })}
+
+    if(req.files.imagen2){
+       
+        const {tempFilePath}= req.files.imagen2
+        const {secure_url} = await cloudinary.uploader.upload(tempFilePath,{folder:tipo});
+        const nombreArchivo2 = secure_url;
+        actualizarImagen(tipo, id,null,nombreArchivo2);
+        res.json({
+            msg: 'Archivo subido correctamente gggg',
+            nombreArchivo2
+        })}
+
 
    }    catch (error) {      
         console.log(error);

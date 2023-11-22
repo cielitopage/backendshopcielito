@@ -8,7 +8,7 @@ const cloudinary = require('cloudinary').v2;
 
 cloudinary.config(process.env.CLOUDINARY_URL);
 
-const actualizarImagen = async (tipo, id, nombreArchivo) => {
+const actualizarImagen = async (tipo, id, nombreArchivo, nombreArchivo2) => {
 
     switch (tipo) {
 
@@ -18,183 +18,102 @@ const actualizarImagen = async (tipo, id, nombreArchivo) => {
                 console.log('No es un usuario por id');
                 return false;
             }
-            const pathViejo = usuario.img;               
 
-           if (pathViejo) {
-            const nombreArr = pathViejo.split('/');
-            const nombre = nombreArr[nombreArr.length - 1];
-            const [ public_id ] = nombre.split('.');
-         
-            await  cloudinary.uploader.destroy('usuarios/' + public_id);
-         }
-
-        // actualizarImagen(nombreArchivo, path);
+            if (usuario.img) {
+                const nombreArr = usuario.img.split('/');
+                const nombre = nombreArr[nombreArr.length - 1];
+                const [public_id] = nombre.split('.');
+                await cloudinary.uploader.destroy('productos/' + public_id);
+            }
+          
             usuario.img = nombreArchivo;
 
-            await usuario.save();  
-          return true;
+            await usuario.save();
+            return true;
 
-        break;
+            break;
 
         case 'productos':
-        const productos = await Producto.findById(id);
-        if (!productos) {
-            console.log('No es un productos por id');
-            return false;
-        }
 
-        const pathViejoproductos = productos.img;
-       // actualizarImagen(pathViejoproductos, path);
-        console.log("pathViejoproductos", pathViejoproductos);  
-               
-        if (pathViejoproductos) {
-         const nombreArr = pathViejoproductos.split('/');
-         const nombre = nombreArr[nombreArr.length - 1];
-         const [ public_id ] = nombre.split('.');
-   
-         await  cloudinary.uploader.destroy('productos/' + public_id);
-      
-      }
+            const productos = await Producto.findById(id);
+            if (!productos) {
+                console.log('No es un productos por id');
+                return false;
+            }       
+                  
+            if (nombreArchivo) {                   
+                if (productos.img) {
+                    const nombreArr = productos.img.split('/');
+                    const nombre = nombreArr[nombreArr.length - 1];
+                    const [public_id] = nombre.split('.');
+                    await cloudinary.uploader.destroy('productos/' + public_id);
+                }
 
-        productos.img = nombreArchivo;
+                productos.img = nombreArchivo;
+                await productos.save();
+                return true;
+            }
 
-        await productos.save();  
-      return true;
+            if (nombreArchivo2) {   
+                if (productos.img2) {
+                    const nombreArr = productos.img2.split('/');
+                    const nombre = nombreArr[nombreArr.length - 1];
+                    const [public_id] = nombre.split('.');
+                    await cloudinary.uploader.destroy('productos/' + public_id);
+                }
+                
+                productos.img2 = nombreArchivo2;
+                await productos.save();
+                return true;
+            }
 
-        break;
+            return true;
+
+            break;
 
         case 'categorias':
-        const categorias = await Categoria.findById(id);
-        if (!categorias) {
-            console.log('No es una categoria por id');
-            return false;
-        }
-        const pathViejocategorias = categorias.img;
-     //  actualizarImagen(pathViejocategorias, path);
-        console.log("pathViejocategorias", pathViejocategorias);
-
-     if (pathViejocategorias) {
-        const nombreArr = pathViejocategorias.split('/');
-        const nombre = nombreArr[nombreArr.length - 1];      
-        const [public_id] = nombre.split('.');        
-        await  cloudinary.uploader.destroy('categorias/' + public_id);     
-     }
-
-        categorias.img = nombreArchivo;
-        await categorias.save();
-      return true;        
-
-        break;
-
-        case 'articulos':
-
-        const articulos = await Article.findById(id);
-        if (!articulos) {
-            console.log('No es un articulos por id');
-            return false;
-        }
-
-        const pathViejoarticulos = articulos.img;
-      //  actualizarImagen(pathViejoarticulos, path);
-        console.log("pathViejoarticulos", pathViejoarticulos);
-
-        if (pathViejoarticulos) {
-            const nombreArr = pathViejoarticulos.split('/');
-            const nombre = nombreArr[nombreArr.length - 1];
-            const [ public_id ] = nombre.split('.');
-            await  cloudinary.uploader.destroy('articulos/' + public_id);
-         }
-
-        articulos.img = nombreArchivo;
-        await articulos.save();
-      return true;
-
-        break;
-
-
-        default:
-
-        break;    
-}
-
-}
-
-const actualizarImagenCloudinary = async (tipo, id, path , nombreArchivo) => {
-
-    switch (tipo) {
-        case 'usuarios':
-            const usuario = await Usuario.findById(id);
-            if (!usuario) {
-                console.log('No es un usuario por id');
+            const categorias = await Categoria.findById(id);
+            if (!categorias) {
+                console.log('No es una categoria por id');
                 return false;
             }
-            const pathViejo = `./uploads/usuarios/${usuario.img}`;
-            actualizarImagen(pathViejo, path);
-           if (fs.existsSync(pathViejo)) {
-                fs.unlinkSync(pathViejo);
+
+            if (categorias.img) {
+                const nombreArr = categorias.img.split('/');
+                const nombre = nombreArr[nombreArr.length - 1];
+                const [public_id] = nombre.split('.');
+                await cloudinary.uploader.destroy('productos/' + public_id);
             }
-            usuario.img = nombreArchivo;
-            await usuario.save();  
-           return true;
-        break;
+            
+            categorias.img = nombreArchivo;
+            await categorias.save();
+            return true;
 
-        case 'productos':
-        const productos = await Producto.findById(id);
-        if (!productos) {
-            console.log('No es un productos por id');
-            return false;
-        }
-        const pathViejoproductos = `./uploads/productos/${productos.img}`;
-        actualizarImagen(pathViejoproductos, path);
-       if (fs.existsSync(pathViejoproductos)) {
-            fs.unlinkSync(pathViejoproductos);
-        }
-        productos.img = nombreArchivo;
-        await productos.save();  
-       return true;
-        break;
-
-        case 'categorias':
-        const categorias = await Categoria.findById(id);
-        if (!categorias) {
-            console.log('No es un productos por id');
-            return false;
-        }
-        const pathViejocategorias = `./uploads/categorias/${categorias.img}`;
-        actualizarImagen(pathViejocategorias, path);
-
-       if (fs.existsSync(pathViejocategorias)) {
-            fs.unlinkSync(pathViejocategorias);
-        }
-        categorias.img = nombreArchivo;
-
-        await categorias.save();
-        return true;      
-
-        break;
+            break;
 
         case 'articulos':
-        const articulos = await Article.findById(id);
-        if (!articulos) {
-            console.log('No es un articulos por id');
-            return false;
-        }
+            const articulos = await Article.findById(id);
+            if (!articulos) {
+                console.log('No es un articulos por id');
+                return false;
+            }
+           
+            if (articulos.img) {
+                const nombreArr = articulos.img.split('/');
+                const nombre = nombreArr[nombreArr.length - 1];
+                const [public_id] = nombre.split('.');
+                await cloudinary.uploader.destroy('productos/' + public_id);
+            }
+            articulos.img = nombreArchivo;
+            await articulos.save();
+            return true;
 
-        const pathViejoarticulos = `./uploads/articulos/${articulos.img}`;
-        actualizarImagen(pathViejoarticulos, path);
-        if (fs.existsSync(pathViejoarticulos)) {
-              fs.unlinkSync(pathViejoarticulos);
-          }
-        articulos.img = nombreArchivo;
-        await articulos.save();
-        return true;
-        break;
+            break;
 
         default:
 
-        break;
-    
-}
+            break;
+    }
 
 }
 
@@ -202,5 +121,5 @@ const actualizarImagenCloudinary = async (tipo, id, path , nombreArchivo) => {
 
 module.exports = {
     actualizarImagen,
-    actualizarImagenCloudinary
+
 }
