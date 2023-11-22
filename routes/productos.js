@@ -13,13 +13,10 @@ const router = Router();
 
 
 // Obtener todas las productos - publico
-
 router.get('/', getProductos);
 
-// Obtener una producto por id - publico
-
-// router.get('/:id', getCategoria);
-
+// Obtener una producto por id - publico 
+ router.get('/:id', validarJWT,   getProductosById);
 // Crear producto - privado - cualquier persona con un token válido
 
 router.post('/', [
@@ -50,7 +47,7 @@ router.put('/:id', [
 
 router.delete('/:id', validarJWT, borrarProducto);
 
-router.get('/:id', validarJWT,   getProductosById);
+
 
 
 module.exports = router;

@@ -1,64 +1,75 @@
 
 const Producto = require('../models/producto');
 const { response } = require('express');
-const { generarJWT } = require('../helpers/jwt');
 
-const getProductos = async(req, res) => {      
-        
-    const desde = Number(req.query.desde) || 0;      
+
+
+const getProductos = async (req, res) => {
+    const desde = Number(req.query.desde) || 0;
+    await Promise.all([
+        Producto.countDocuments(),
+        Producto.find().populate('usuario', 'nombre img telefono')
+            .populate('categoria', 'nombre img')
+            .skip(desde)
+            .limit(12)
+    ])
+        .then(respuestas => {
+            res.json({
+                ok: true,
+                productos: respuestas[1],
+                total: respuestas[0]
+            });
+        });
+}
+
+
+
+const getProductosById = async (req, res) => {
+    const id = req.params.id;
+    try {
         await Promise.all([
             Producto.countDocuments(),
-            Producto.find().populate('usuario', 'nombre img telefono')
-                          .populate('categoria', 'nombre img')
-                .skip( desde )
-                .limit( 12 )                             
-            ])
-        .then( respuestas => {                
+            Producto.findById(id)
+                .populate('usuario', 'nombre img telefono')
+                .populate('categoria', 'nombre img')
+        ])
+            .then(respuestas => {
                 res.json({
                     ok: true,
                     productos: respuestas[1],
-                    total: respuestas[0]
-                });        
-            });            
-        }
-
-        
-
-        const getProductosById = async(req, res) => {    
-            const id = req.params.id;         
-            
-            try {    
-            await Promise.all([
-                Producto.countDocuments(),
-                Producto.findById(id)
-                             .populate('usuario', 'nombre img telefono')
-                              .populate('categoria', 'nombre img')                  
-            ])
-            .then( respuestas => {                    
-                    res.json({
-                        ok: true,
-                        productos: respuestas[1],                    
-                    });            
                 });
+            });
 
-            } catch (error) {
-                console.log(error);
-                res.status(500).json({
-                    ok: false,
-                    msg: 'Hable con el administrador',
-                    error: error        
-                });        
-            }
-     }
-        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador',
+            error: error
+        });
+    }
+}
 
-const crearProducto = async(req, res = response) => {
+
+const crearProducto = async (req, res = response) => {
     const producto = new Producto({
         usuario: req.uid,
         ...req.body
     });
 
     try {
+
+        if (producto.nombre) {
+            const existeNombre = await Producto.findOne({ nombre: producto.nombre });
+            if (existeNombre) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Ya existe una producto con ese nombre'
+                });
+            }
+        }
+
+
         const productoDB = await producto.save();
         res.json({
             ok: true,
@@ -72,12 +83,11 @@ const crearProducto = async(req, res = response) => {
             msg: 'Hable con el administrador'
         });
 
-    }  
+    }
 
 }
 
-const actualizarProducto = async(req, res = response) => {
-
+const actualizarProducto = async (req, res = response) => {
     const uid = req.params.id;
     try {
         const productoDB = await Producto.findById(uid);
@@ -89,7 +99,6 @@ const actualizarProducto = async(req, res = response) => {
         }
 
         // Actualizaciones
-
         const { nombre, ...campos } = req.body;
         if (productoDB.nombre !== nombre) {
             const existeProducto = await Producto.findOne({ nombre });
@@ -100,9 +109,7 @@ const actualizarProducto = async(req, res = response) => {
                 });
             }
         }
-
         campos.nombre = nombre;
-
         const productoActualizado = await Producto.findByIdAndUpdate(uid, campos, { new: true });
 
         res.json({
@@ -110,7 +117,6 @@ const actualizarProducto = async(req, res = response) => {
             producto: productoActualizado
         });
     }
-
     catch (error) {
         console.log(error);
         res.status(500).json({
@@ -119,9 +125,9 @@ const actualizarProducto = async(req, res = response) => {
         });
     }
 
-    }
+}
 
-const borrarProducto = async(req, res = response) => {
+const borrarProducto = async (req, res = response) => {
 
     const uid = req.params.id;
     try {
@@ -143,7 +149,6 @@ const borrarProducto = async(req, res = response) => {
     }
 
     catch (error) {
-
         console.log(error);
         res.status(500).json({
             ok: false,
@@ -151,7 +156,7 @@ const borrarProducto = async(req, res = response) => {
 
         });
 
-    }    
+    }
 
 }
 

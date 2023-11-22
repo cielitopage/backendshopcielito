@@ -77,6 +77,8 @@ const uploadFile = async(req, res = response) => {
 }
 
 
+
+
 const uploadFileCloud = async(req, res = response) => {
     const { tipo, id } = req.params;
 
@@ -85,7 +87,7 @@ const uploadFileCloud = async(req, res = response) => {
 
     if (!tiposValidos.includes(tipo)) {
         return res.status(400).json({
-            msg: 'No es un tipo valido'
+            msg: 'No es un tipo valido'  
         })
     }
 

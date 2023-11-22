@@ -9,11 +9,19 @@ const { generarJWT } = require('../helpers/jwt');
 
 
 const login = async( req, res = response ) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body;  
 
     try {        
         // Verificar email
         const usuarioDB = await Usuario.findOne({ email });
+
+        if ( usuarioDB.estado === false ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Usuario no autorizado contacte al administrador'
+            });
+        }
+
         if ( !usuarioDB ) {
             return res.status(404).json({
                 ok: false,
@@ -58,6 +66,13 @@ const googleSignIn = async( req, res = response ) => {
     // Verificar si el usuario existe en la BD
 
     const usuarioDB = await Usuario.findOne({ email });   
+
+    if (  usuamnbvrioDB.estado === false ) {
+        return res.status(404).json({
+            ok: false,
+            msg: 'Usuario no autorizado contacte al administrador'
+        });
+    }
 
     let usuario;
     if ( !usuarioDB ) {

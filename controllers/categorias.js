@@ -3,42 +3,58 @@ const { response } = require('express');
 
 
 
-const getCategorias = async(req, res) => {  
+const getCategorias = async (req, res) => {
     const desde = Number(req.query.desde) || 0;
-    
     await Promise.all([
         Categoria.countDocuments(),
         Categoria.find().populate('usuario', 'nombre img')
-            .skip( desde )
-            .limit( 10 )
+            .skip(desde)
+            .limit(10)
     ])
-    .then( respuestas => {
+        .then(respuestas => {
+            res.json({
+                ok: true,
+                categorias: respuestas[1],
+                total: respuestas[0]
+            });
 
-        res.json({
-            ok: true,
-            categorias: respuestas[1],
-            total: respuestas[0]
         });
+}
 
+
+const getCategoria = async (req, res = response) => {
+    const uid = req.params.id;
+    const categoria = await Categoria.findById(uid).populate('usuario', 'nombre img');
+
+    res.json({
+        ok: true,
+        categoria
     });
 }
 
 
-
-const crearCategoria = async(req, res = response) => {
-
+const crearCategoria = async (req, res = response) => {
     const categoria = new Categoria({
         usuario: req.uid,
         ...req.body
     });
 
+    if (categoria.nombre) {
+        const existeNombre = await Categoria.findOne({ nombre: categoria.nombre });
+        if (existeNombre) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Ya existe una categoria con ese nombre'
+            });
+        }
+    }
     try {
-        const categoriaDB = await categoria.save();    
+        const categoriaDB = await categoria.save();
 
-               res.json({
-                   ok: true,
-                   categoria: categoriaDB
-               });  
+        res.json({
+            ok: true,
+            categoria: categoriaDB
+        });
 
     } catch (error) {
         console.log(error);
@@ -47,12 +63,10 @@ const crearCategoria = async(req, res = response) => {
             msg: 'Hable con el administrador'
         });
     }
-
 }
 
 
-
-const actualizarCategoria = async(req, res = response) => {
+const actualizarCategoria = async (req, res = response) => {
     const uid = req.params.id;
 
     try {
@@ -94,16 +108,14 @@ const actualizarCategoria = async(req, res = response) => {
             ok: false,
             msg: 'Hable con el administrador'
         });
-    }   
+    }
 }
 
 
 
 
-const borrarCategoria = async(req, res = response) => {
-
+const borrarCategoria = async (req, res = response) => {
     const uid = req.params.id;
-
     try {
         const categoriaDB = await Categoria.findById(uid);
 
@@ -113,17 +125,43 @@ const borrarCategoria = async(req, res = response) => {
                 msg: 'No existe una categoria con ese id'
             });
         }
-
-        await Categoria.findByIdAndDelete(uid);
-
-        res.json({  
+        const categoriaBorrada = await Categoria.findByIdAndUpdate(uid, { estado: false }, { new: true });
+        res.json({
             ok: true,
-            msg: 'Categoria eliminada'
+            msg: 'Categoria eliminada',
+            categoria: categoriaBorrada
+
         });
-        
-
-
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
 }
+
+
+const activarCategoria = async (req, res = response) => {
+    const uid = req.params.id;
+    try {
+        const categoriaDB = await Categoria.findById(uid);
+
+        if (!categoriaDB) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe una categoria con ese id'
+            });
+        }
+        const categoriaBorrada = await Categoria.findByIdAndUpdate(uid, { estado: true }, { new: true });
+        res.json({
+            ok: true,
+            msg: 'Categoria eliminada',
+            categoria: categoriaBorrada
+
+        });
+    }
     catch (error) {
         console.log(error);
         res.status(500).json({
@@ -135,13 +173,12 @@ const borrarCategoria = async(req, res = response) => {
 
 
 
-
-
-
 module.exports = {
     getCategorias,
+    getCategoria,
     crearCategoria,
     actualizarCategoria,
-    borrarCategoria
+    borrarCategoria,
+    activarCategoria
 }
 // Compare this snippet from routes\categorias.js:

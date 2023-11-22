@@ -204,12 +204,12 @@ const borrarUsuario = async(req, res = response ) => {
                 msg: 'No existe un usuario por ese id'
             });
         }          
-        const usuariodeactivado = await Usuario.findByIdAndUpdate( uid, { estado: false }, { new: true } );          
+        const usuarioDesactivado = await Usuario.findByIdAndUpdate( uid, { estado: false }, { new: true } );          
             // await Usuario.findByIdAndDelete( uid );        
         res.json({
             ok: true,
-            msg: 'Usuario eliminado',
-            usuario: usuariodeactivado
+            msg: 'Usuario desactivado',
+            usuario:usuarioDesactivado
         });
     } catch (error) {
          console.log(error);
@@ -218,7 +218,33 @@ const borrarUsuario = async(req, res = response ) => {
             msg: 'Hable con el administrador'
         });
     }
+}
 
+
+const activarUsuario = async(req, res = response ) => {
+    const uid = req.params.id;
+    try {
+        const usuarioDB = await Usuario.findById( uid );
+        if ( !usuarioDB ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe un usuario por ese id'
+            });
+        }          
+        const usuarioActivado = await Usuario.findByIdAndUpdate( uid, { estado: true }, { new: true } );          
+            // await Usuario.findByIdAndDelete( uid );        
+        res.json({
+            ok: true,
+            msg: 'Usuario activado',
+            usuario:usuarioActivado
+        });
+    } catch (error) {
+         console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });
+    }
 }
 
 
@@ -255,23 +281,10 @@ const borrarUsuario = async(req, res = response ) => {
                 ok: false,
                 msg: 'Hable con el administrador'
             });
-        }
-
-
-
-
-        
-
+        }  
        
     }
-
-
-
-      
-
-
-
-
+   
 
 
 module.exports = {
@@ -281,5 +294,6 @@ module.exports = {
     actualizarUsuario,
     borrarUsuario,
     validateEmail,
+    activarUsuario
    
 }
