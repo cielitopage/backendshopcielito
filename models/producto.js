@@ -26,9 +26,10 @@ const ProductoSchema = Schema({
     linkdepago: {
         type: String
     },
-    img: {
+    img:[ {
             type: String,
         }
+    ]
     ,
     img2: {
         type: String,

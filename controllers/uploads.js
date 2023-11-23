@@ -2,7 +2,7 @@
 require('dotenv').config();
 const { response } = require('express');
 
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const path = require('path');
 const Usuario = require('../models/usuario');
@@ -23,11 +23,11 @@ cloudinary.config(process.env.CLOUDINARY_URL);
 //   });
 
 
-const uploadFile = async(req, res = response) => {
+const uploadFile = async (req, res = response) => {
     const { tipo, id } = req.params;
 
     // Validar tipo
-    const tiposValidos = ['productos', 'usuarios', 'categorias' ,'articulos'];
+    const tiposValidos = ['productos', 'usuarios', 'categorias', 'articulos'];
 
     if (!tiposValidos.includes(tipo)) {
         return res.status(400).json({
@@ -48,7 +48,7 @@ const uploadFile = async(req, res = response) => {
     const extensionArchivo = nombreCortado[nombreCortado.length - 1]; // Obtener la extension del archivo
     // Validar extension
 
-    const extensionesValidas = ['png','PNG', 'jpg','JPG', 'jpeg', 'gif'];
+    const extensionesValidas = ['png', 'PNG', 'jpg', 'JPG', 'jpeg', 'gif'];
     if (!extensionesValidas.includes(extensionArchivo)) {
         return res.status(400).json({
             msg: 'No es una extension valida'
@@ -56,18 +56,18 @@ const uploadFile = async(req, res = response) => {
     }
     // Generar el nombre del archivo
     const nombreArchivo = `${uuidv4()}.${extensionArchivo}`;
-   const path = `./uploads/${tipo}/${nombreArchivo}`;
-   // Mover la imagen
-    file.mv(path, (err) => {        
+    const path = `./uploads/${tipo}/${nombreArchivo}`;
+    // Mover la imagen
+    file.mv(path, (err) => {
         if (err) {
             console.log(err);
             return res.status(500).json({
-                msg: 'Error al mover la imagen',err,path                
+                msg: 'Error al mover la imagen', err, path
             })
-        }        
+        }
 
         // Actualizar base de datos
-        actualizarImagen(tipo, id,path ,nombreArchivo);
+        actualizarImagen(tipo, id, path, nombreArchivo);
         res.json({
             msg: 'Archivo subido correctamente',
             nombreArchivo
@@ -78,58 +78,49 @@ const uploadFile = async(req, res = response) => {
 
 
 
-const uploadFileCloud = async(req, res = response) => {
+const uploadFileCloud = async (req, res = response) => {
     const { tipo, id } = req.params;
 
     // Validar tipo
-    const tiposValidos = ['productos', 'usuarios', 'categorias','articulos'];
+    const tiposValidos = ['productos' ];
 
     if (!tiposValidos.includes(tipo)) {
         return res.status(400).json({
-            msg: 'No es un tipo valido'  
+            msg: 'No es un tipo valido'
         })
     }
 
     // Validar que exista dos archivos     
     if (!req.files || Object.keys(req.files).length === 0) {
 
-        console.log("req.files",req.files);
+        console.log("req.files", req.files);
         return res.status(400).json({
             msg: 'No hay ningun archivo cargado'
         })
     }
-
     // Procesar la imagen   
-   try {
+    try {
+        if (req.files.imagen) {
+            const imagenes = req.files.imagen;
+            const nombreArchivo = [];
+            // const {tempFilePath}=req.files.imagen;
+
+            for (const imagen of imagenes) {
+                const { tempFilePath } = imagen
+                const { secure_url } = await cloudinary.uploader.upload(tempFilePath, { folder: tipo });
+                nombreArchivo.push(secure_url);
+            }
+
+            actualizarImagen(tipo, id, nombreArchivo);
+            res.json({
+                msg: 'Archivo subido correctamente',
+                nombreArchivo
+            })
+        }
 
 
 
-    if(req.files.imagen){    
-    
-
-    const {tempFilePath}= req.files.imagen
-    const {secure_url} = await cloudinary.uploader.upload(tempFilePath,{folder:tipo});
-
-    const nombreArchivo = secure_url;
-    actualizarImagen(tipo, id,nombreArchivo,null);
-    res.json({
-        msg: 'Archivo subido correctamente',
-        nombreArchivo
-    })}
-
-    if(req.files.imagen2){
-       
-        const {tempFilePath}= req.files.imagen2
-        const {secure_url} = await cloudinary.uploader.upload(tempFilePath,{folder:tipo});
-        const nombreArchivo2 = secure_url;
-        actualizarImagen(tipo, id,null,nombreArchivo2);
-        res.json({
-            msg: 'Archivo subido correctamente gggg',
-            nombreArchivo2
-        })}
-
-
-   }    catch (error) {      
+    } catch (error) {
         console.log(error);
         res.status(500).json({
             msg: 'Error al subir la imagen',
@@ -139,13 +130,42 @@ const uploadFileCloud = async(req, res = response) => {
 }
 
 
-const mostrarImagen = async(req, res = response) => {
+
+const uploadSingleFileCloud = async (req, res = response) => {
+    const { tipo, id } = req.params;
+    // Validar tipo
+    const tiposValidos = [ 'usuarios','categorias', 'articulos'];
+    if (!tiposValidos.includes(tipo)) {
+        return res.status(400).json({
+            msg: 'No es un tipo valido'
+        })
+    }
+    // Validar que exista dos archivos     
+    if (!req.files || Object.keys(req.files).length === 0) {
+        console.log("req.files", req.files);
+        return res.status(400).json({
+            msg: 'No hay ningun archivo cargado'
+        })
+    }
+    const { tempFilePath } = req.files.imagen;
+    const { secure_url } = await cloudinary.uploader.upload(tempFilePath, { folder: tipo });
+    const nombreArchivo = secure_url;
+    actualizarImagen(tipo, id,nombreArchivo);
+    res.json({
+        msg: 'Archivo subido correctamente gggg',
+        nombreArchivo
+    })
+
+}
+
+
+const mostrarImagen = async (req, res = response) => {
 
     const { tipo, foto } = req.params;
 
     const pathImg = path.join(__dirname, `../uploads/${tipo}/${foto}`);
 
-   // Imagen por defecto 
+    // Imagen por defecto 
     if (fs.existsSync(pathImg)) {
         res.sendFile(pathImg);
     } else {
@@ -159,12 +179,13 @@ const mostrarImagen = async(req, res = response) => {
 
 
 
-     
+
 
 
 module.exports = {
     uploadFile,
     mostrarImagen,
-    uploadFileCloud
- 
+    uploadFileCloud,
+    uploadSingleFileCloud
+
 }

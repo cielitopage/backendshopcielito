@@ -3,7 +3,7 @@
 
 const { Router } = require('express');
 const { validarJWT } = require('../middlewares/validar-jws');
-const { uploadFile,mostrarImagen,uploadFileCloud } = require('../controllers/uploads');
+const { uploadSingleFileCloud,mostrarImagen,uploadFileCloud } = require('../controllers/uploads');
 
 const expressFileUpload = require('express-fileupload');
 const fileUpload = require('express-fileupload');
@@ -17,6 +17,7 @@ router.use(expressFileUpload(
 
 //router.put('/:tipo/:id', validarJWT, uploadFile);
 router.put('/:tipo/:id', validarJWT, uploadFileCloud);
+router.put('/usuario/:tipo/:id', validarJWT, uploadSingleFileCloud);
 
 router.get('/:tipo/:foto',  mostrarImagen);
 

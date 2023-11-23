@@ -8,7 +8,7 @@ const cloudinary = require('cloudinary').v2;
 
 cloudinary.config(process.env.CLOUDINARY_URL);
 
-const actualizarImagen = async (tipo, id, nombreArchivo, nombreArchivo2) => {
+const actualizarImagen = async (tipo, id, nombreArchivo) => {
 
     switch (tipo) {
 
@@ -18,57 +18,38 @@ const actualizarImagen = async (tipo, id, nombreArchivo, nombreArchivo2) => {
                 console.log('No es un usuario por id');
                 return false;
             }
-
             if (usuario.img) {
                 const nombreArr = usuario.img.split('/');
                 const nombre = nombreArr[nombreArr.length - 1];
                 const [public_id] = nombre.split('.');
-                await cloudinary.uploader.destroy('productos/' + public_id);
+                await cloudinary.uploader.destroy('usuarios/' + public_id);                      
+                                 
             }
-          
+                   
             usuario.img = nombreArchivo;
-
             await usuario.save();
             return true;
 
             break;
 
         case 'productos':
-
             const productos = await Producto.findById(id);
             if (!productos) {
                 console.log('No es un productos por id');
                 return false;
-            }       
-                  
-            if (nombreArchivo) {                   
-                if (productos.img) {
-                    const nombreArr = productos.img.split('/');
-                    const nombre = nombreArr[nombreArr.length - 1];
-                    const [public_id] = nombre.split('.');
-                    await cloudinary.uploader.destroy('productos/' + public_id);
-                }
+            }    
 
-                productos.img = nombreArchivo;
-                await productos.save();
-                return true;
-            }
+            for (const item of productos.img) {
+                const nombreArr = item.split('/');
+                const nombre = nombreArr[nombreArr.length - 1];
+                const [public_id] = nombre.split('.');
+                await cloudinary.uploader.destroy('productos/' + public_id);                             
+            }  
 
-            if (nombreArchivo2) {   
-                if (productos.img2) {
-                    const nombreArr = productos.img2.split('/');
-                    const nombre = nombreArr[nombreArr.length - 1];
-                    const [public_id] = nombre.split('.');
-                    await cloudinary.uploader.destroy('productos/' + public_id);
-                }
-                
-                productos.img2 = nombreArchivo2;
-                await productos.save();
-                return true;
-            }
-
+            productos.img = nombreArchivo;
+            await productos.save();
             return true;
-
+            
             break;
 
         case 'categorias':
@@ -79,12 +60,13 @@ const actualizarImagen = async (tipo, id, nombreArchivo, nombreArchivo2) => {
             }
 
             if (categorias.img) {
-                const nombreArr = categorias.img.split('/');
+                const nombreArr = usuario.img.split('/');
                 const nombre = nombreArr[nombreArr.length - 1];
                 const [public_id] = nombre.split('.');
-                await cloudinary.uploader.destroy('productos/' + public_id);
+                await cloudinary.uploader.destroy('categorias/' + public_id);                      
+                                 
             }
-            
+
             categorias.img = nombreArchivo;
             await categorias.save();
             return true;
@@ -102,7 +84,8 @@ const actualizarImagen = async (tipo, id, nombreArchivo, nombreArchivo2) => {
                 const nombreArr = articulos.img.split('/');
                 const nombre = nombreArr[nombreArr.length - 1];
                 const [public_id] = nombre.split('.');
-                await cloudinary.uploader.destroy('productos/' + public_id);
+                await cloudinary.uploader.destroy('articulos/' + public_id);                      
+                                 
             }
             articulos.img = nombreArchivo;
             await articulos.save();
