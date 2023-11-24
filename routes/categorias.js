@@ -36,7 +36,4 @@ router.delete('/:id', validarJWT, borrarCategoria);
 router.put('/activar/:id', validarJWT, activarCategoria);
 
 
-
-
-
 module.exports = router;

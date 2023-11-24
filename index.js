@@ -20,7 +20,7 @@ dbConnection();
 
 // Routes
 app.use('/api/usuarios', require('./routes/usuarios')); // Ruta para usuarios
-app.use('/api/login', require('./routes/auth')); // Ruta para login
+app.use('/api/login', require('./routes/auth')); // Ruta para login 
 app.use('/api/validate-email', require('./routes/usuarios')); // Ruta para login
 app.use('/api/categorias', require('./routes/categorias')); // Ruta para categorias
 app.use('/api/productos', require('./routes/productos')); // Ruta para productos

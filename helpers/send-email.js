@@ -7,9 +7,7 @@ const EmailService = require('../services/email-services');
 const sendEmailLink = async (email) => {
 
     const sendEmail = new EmailService();
-
     const token = await generarJWTemail(email);
-
     if (!token) {
         return false;
     }
@@ -30,10 +28,7 @@ const sendEmailLink = async (email) => {
     if (!sent) {
         return false;
     }
-
-
     return sent;
-
 }
 
 

@@ -9,10 +9,6 @@ const { sendEmailLink  } = require('../helpers/send-email');
 
 
 
-
-
-
-
 const getUsuarios = async(req, res) => {
     const desde = Number(req.query.desde) || 0;  
     await Promise.all([

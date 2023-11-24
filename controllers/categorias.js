@@ -68,7 +68,6 @@ const crearCategoria = async (req, res = response) => {
 
 const actualizarCategoria = async (req, res = response) => {
     const uid = req.params.id;
-
     try {
         const categoriaDB = await Categoria.findById(uid);
 
@@ -78,11 +77,8 @@ const actualizarCategoria = async (req, res = response) => {
                 msg: 'No existe una categoria con ese id'
             });
         }
-
         // Actualizaciones
-
         const { nombre, ...campos } = req.body;
-
         if (categoriaDB.nombre !== nombre) {
             const existeNombre = await Categoria.findOne({ nombre });
             if (existeNombre) {
@@ -92,11 +88,8 @@ const actualizarCategoria = async (req, res = response) => {
                 });
             }
         }
-
         campos.nombre = nombre;
-
         const categoriaActualizada = await Categoria.findByIdAndUpdate(uid, campos, { new: true });
-
         res.json({
             ok: true,
             categoria: categoriaActualizada
@@ -118,7 +111,6 @@ const borrarCategoria = async (req, res = response) => {
     const uid = req.params.id;
     try {
         const categoriaDB = await Categoria.findById(uid);
-
         if (!categoriaDB) {
             return res.status(404).json({
                 ok: false,
@@ -130,7 +122,6 @@ const borrarCategoria = async (req, res = response) => {
             ok: true,
             msg: 'Categoria eliminada',
             categoria: categoriaBorrada
-
         });
     }
     catch (error) {

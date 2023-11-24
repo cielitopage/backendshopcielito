@@ -14,13 +14,7 @@ const login = async( req, res = response ) => {
     try {        
         // Verificar email
         const usuarioDB = await Usuario.findOne({ email });
-
-        if ( usuarioDB.estado === false ) {
-            return res.status(404).json({
-                ok: false,
-                msg: 'Usuario no autorizado contacte al administrador'
-            });
-        }
+     
 
         if ( !usuarioDB ) {
             return res.status(404).json({
@@ -29,14 +23,23 @@ const login = async( req, res = response ) => {
             });
         }
 
-        // Verificar contraseña
-        const validPassword = bcrypt.compareSync( password, usuarioDB.password );
-        if ( !validPassword ) {
-            return res.status(400).json({
+          // Verificar contraseña
+          const validPassword = bcrypt.compareSync( password, usuarioDB.password );
+          if ( !validPassword ) {
+              return res.status(400).json({
+                  ok: false,
+                  msg: 'Contraseña no válida'
+              });
+          }
+
+        if ( usuarioDB.estado === false ) {
+            return res.status(404).json({
                 ok: false,
-                msg: 'Contraseña no válida'
+                msg: 'Usuario no autorizado contacte al administrador'
             });
         }
+
+      
         // Generar el TOKEN - JWT
         const token = await generarJWT( usuarioDB.id );
 
@@ -67,12 +70,12 @@ const googleSignIn = async( req, res = response ) => {
 
     const usuarioDB = await Usuario.findOne({ email });   
 
-    if (  usuamnbvrioDB.estado === false ) {
-        return res.status(404).json({
-            ok: false,
-            msg: 'Usuario no autorizado contacte al administrador'
-        });
-    }
+    // if (  usuarioDB.estado === false ) {
+    //     return res.status(404).json({
+    //         ok: false,
+    //         msg: 'Usuario no autorizado contacte al administrador'
+    //     });
+    // }
 
     let usuario;
     if ( !usuarioDB ) {
@@ -92,11 +95,12 @@ const googleSignIn = async( req, res = response ) => {
         // Existe usuario
         usuario = usuarioDB;
         usuario.google = true;
-        usuario.password = '@@@';
+       // usuario.password = '@@@';
     }
 
     // Guardar en BD
     await usuario.save();
+
     // Generar el TOKEN - JWT
     const token = await generarJWT( usuario.id );
 
@@ -122,10 +126,8 @@ const googleSignIn = async( req, res = response ) => {
 
 const renewToken = async( req, res = response ) => {
       const uid = req.uid;
-
       // Generar el TOKEN - JWT
       const token = await generarJWT( uid );
-
       // Obtener el usuario por UID
       const usuario = await Usuario.findById( uid );
 

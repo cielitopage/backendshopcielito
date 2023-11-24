@@ -14,10 +14,10 @@ router.post( '/',
         check('password', 'El password es obligatorio').not().isEmpty(),
         validarcampos
     ],
-    login
+    login 
 )
 
-router.post( '/google',
+router.post( '/google', 
     [
         check('token', 'El id_token es obligatorio').not().isEmpty(),
         validarcampos
