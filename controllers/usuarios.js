@@ -4,7 +4,7 @@ const { response } = require('express');
 
 const bcrypt = require('bcryptjs');
 const { generarJWT,validarJWT  } = require('../helpers/jwt');
-const { sendEmailLink  } = require('../helpers/send-email');
+const { sendEmailLink,sendEmailLinkResetpassword  } = require('../helpers/send-email');
 
 
 
@@ -140,54 +140,96 @@ const actualizarUsuario = async (req, res = response) => {
 // reset password
 
 const resetPassword = async (req, res = response) => {
-      
-     const uid = req.params.id;
-     try {
-          const usuarioDB = await Usuario.findById( uid );
-          if ( !usuarioDB ) {
-                return res.status(404).json({
-                 ok: false,
-                 msg: 'No existe un usuario por ese id'
-                });
-          }
-    
-          // Actualizaciones
-          const {password,  google, email, ...campos } = req.body;
-    
-          if ( usuarioDB.email !== email ) {
-    
-                const existeEmail = await Usuario.findOne({ email });
-                if ( existeEmail ) {
-                 return res.status(400).json({
-                      ok: false,
-                      msg: 'Ya existe un usuario con ese email'
-                 });
-                }
-          }        
-          campos.email = email;
-    
-          // actualizo  contraseña
-          if ( !usuarioDB.google ) {
-                const salt = bcrypt.genSaltSync();
-                campos.password = bcrypt.hashSync( password, salt );
-          } else {
-                delete campos.password;
-          }
-    
-          const usuarioActualizado = await Usuario.findByIdAndUpdate( uid, campos, { new: true } );
-          res.json({
-                ok: true,
-                usuario: usuarioActualizado
-          });
-          
-     } catch (error) {
-          console.log(error);
-          res.status(500).json({
+          const { email } = req.body;
+    try {
+        const usuarioDB = await Usuario.findOne({ email: email });
+        if ( !usuarioDB ) {
+            return res.status(404).json({
                 ok: false,
-                msg: 'Error inesperado'
-          })
-     }
+                msg: 'No existe un usuario por ese email'
+            });
+        }
+
+        const token = await generarJWT( usuarioDB.id );
+        const sent = await sendEmailLinkResetpassword( email, token );
+
+        const usuario = await Usuario.findByIdAndUpdate( usuarioDB.id, { resetPassword: true }, { new: true } );
+
+    
+
+        if ( !sent ) {
+            return res.status(500).json({
+                ok: false,
+                msg: 'No se pudo enviar el correo de verificación'
+            });
+        }
+
+        res.json({
+            ok: true,
+            msg: 'Se ha enviado un correo electrónico para restablecer la contraseña',
+            sent: sent,
+            usuario: usuario,
+        });
+
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        });     
+
     }
+}
+
+const resetPasswordConfirm = async (req = request, res = response) => {
+
+    const uid = req.params.id;
+    const { password } = req.body;
+ 
+
+    try {
+        const usuarioDB = await Usuario.findById( uid );
+        if ( !usuarioDB ) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe un usuario por ese id'
+            });
+        }
+        // Actualizaciones
+        const {password} = req.body;
+
+        // Encriptar contraseña
+
+        const salt = bcrypt.genSaltSync();
+
+        const passwordHash = bcrypt.hashSync(password, salt);
+
+        const usuarioActualizado = await Usuario.findByIdAndUpdate( uid, { password: passwordHash, resetPassword: false }, { new: true } );
+
+        res.json({
+            ok: true,
+            msg: 'Password actualizado',
+            usuario: usuarioActualizado
+        });
+
+    } catch (error) {
+
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: error,
+            error: error
+        })
+   }
+
+      
+
+ 
+
+}
+
+
 
 
 const borrarUsuario = async(req, res = response ) => {
@@ -244,7 +286,7 @@ const activarUsuario = async(req, res = response ) => {
 }
 
 
-    const validateEmail = async(req, res = response ) => {
+    const validateEmail = async(req, res = response ) => { 
         const { token } = req.params;     
 
         const emailValidado = await validarJWT( token)
@@ -266,10 +308,15 @@ const activarUsuario = async(req, res = response ) => {
                 });
             }
             const usuarioActualizado = await Usuario.findByIdAndUpdate( usuarioDB.id, { emailVerified: true }, { new: true } );
+
+           
             res.json({
                 ok: true,
                 msg: 'Usuario validado',
-                usuario: usuarioActualizado
+                usuario: usuarioActualizado,
+                token: token
+              
+                
             });
         } catch (error) {
             console.log(error);
@@ -290,6 +337,8 @@ module.exports = {
     actualizarUsuario,
     borrarUsuario,
     validateEmail,
-    activarUsuario
+    activarUsuario,
+    resetPassword,
+    resetPasswordConfirm
    
 }

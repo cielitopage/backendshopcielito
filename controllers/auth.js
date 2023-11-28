@@ -13,8 +13,7 @@ const login = async( req, res = response ) => {
 
     try {        
         // Verificar email
-        const usuarioDB = await Usuario.findOne({ email });
-     
+        const usuarioDB = await Usuario.findOne({ email });     
 
         if ( !usuarioDB ) {
             return res.status(404).json({
@@ -22,7 +21,6 @@ const login = async( req, res = response ) => {
                 msg: 'Email no encontrado'
             });
         }
-
           // Verificar contraseña
           const validPassword = bcrypt.compareSync( password, usuarioDB.password );
           if ( !validPassword ) {
@@ -38,7 +36,6 @@ const login = async( req, res = response ) => {
                 msg: 'Usuario no autorizado contacte al administrador'
             });
         }
-
       
         // Generar el TOKEN - JWT
         const token = await generarJWT( usuarioDB.id );
@@ -59,24 +56,15 @@ const login = async( req, res = response ) => {
 }
 
 
-
 const googleSignIn = async( req, res = response ) => {
-
     try {
     const very = await googleVerify( req.body.token );
     const { name, email, picture } = very;
 
     // Verificar si el usuario existe en la BD
 
-    const usuarioDB = await Usuario.findOne({ email });   
-
-    // if (  usuarioDB.estado === false ) {
-    //     return res.status(404).json({
-    //         ok: false,
-    //         msg: 'Usuario no autorizado contacte al administrador'
-    //     });
-    // }
-
+    const usuarioDB = await Usuario.findOne({ email });  
+ 
     let usuario;
     if ( !usuarioDB ) {
 
@@ -106,6 +94,7 @@ const googleSignIn = async( req, res = response ) => {
 
     res.json({  
         ok: true,
+        usuario,
         name,
         email,
         picture,
