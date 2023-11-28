@@ -16,7 +16,7 @@ const sendEmailLink = async (email) => {
 
     const url = `${process.env.URL_FRONTEND}/validate-email/validate/${token}`;
 
-    const urlfront = `http://localhost:4200/user-actived/${token}`;
+    const urlfront = `https://www.cielitoazul.com.ar/user-actived/${token}`;
 
     const htmlBody = `
         <h1>Correo de verificación</h1>
@@ -50,7 +50,7 @@ const sendEmailLinkResetpassword = async (email) => {
 
    // const url = `${process.env.URL_FRONTEND}/validate-email/validate/${token}`;
 
-    const urlfront = `http://localhost:4200/user-resetpassword/${token}`;
+    const urlfront = `https://www.cielitoazul.com.ar/user-resetpassword/${token}`;
 
     const htmlBody = `
         <h1>Correo de reset password</h1>
