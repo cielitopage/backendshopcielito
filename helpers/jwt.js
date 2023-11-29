@@ -24,12 +24,10 @@ const generarJWT = ( uid ) => {
 
 
 const generarJWTemail = ( email ) => {
-
     return new Promise( ( resolve, reject ) => {
         const payload = {
             email,
-        };
-    
+        };    
         jwt.sign( payload, process.env.JWT_SECRET, {
             expiresIn: '2h'
         }, ( err, token ) => {
@@ -47,19 +45,14 @@ const generarJWTemail = ( email ) => {
 
 
 const validarJWT = (token) => {
-
-    try {
-        
-        const { email } = jwt.verify( token, process.env.JWT_SECRET );
-        
+    try {        
+        const { email } = jwt.verify( token, process.env.JWT_SECRET );        
 
         return [true, email];
 
     } catch (error) {
         return [false, null];
-    }
-
- 
+    } 
 }
 
 

@@ -1,7 +1,6 @@
 
 const Usuario = require('../models/usuario');
 const { response } = require('express');
-
 const bcrypt = require('bcryptjs');
 const { generarJWT,validarJWT  } = require('../helpers/jwt');
 const { sendEmailLink,sendEmailLinkResetpassword  } = require('../helpers/send-email');
@@ -79,8 +78,6 @@ const crearUsuario = async(req, res = response) => {
                     msg: 'No se pudo enviar el correo de verificación'
                 });
             }
-
-
             // Generar el TOKEN - JWT
             const token = await generarJWT( usuario.id );
             res.json({
@@ -110,8 +107,7 @@ const actualizarUsuario = async (req, res = response) => {
             });
         }
         // Actualizaciones
-        const {password,  google, email, ...campos } = req.body;
-        
+        const {password,  google, email, ...campos } = req.body;        
         if ( usuarioDB.email !== email ) {
             const existeEmail = await Usuario.findOne({ email });
             if ( existeEmail ) {
@@ -152,10 +148,7 @@ const resetPassword = async (req, res = response) => {
 
         const token = await generarJWT( usuarioDB.id );
         const sent = await sendEmailLinkResetpassword( email, token );
-
-        const usuario = await Usuario.findByIdAndUpdate( usuarioDB.id, { resetPassword: true }, { new: true } );
-
-    
+        const usuario = await Usuario.findByIdAndUpdate( usuarioDB.id, { resetPassword: true }, { new: true } );   
 
         if ( !sent ) {
             return res.status(500).json({
@@ -183,10 +176,8 @@ const resetPassword = async (req, res = response) => {
 }
 
 const resetPasswordConfirm = async (req = request, res = response) => {
-
     const uid = req.params.id;
-    const { password } = req.body;
- 
+    const { password } = req.body; 
 
     try {
         const usuarioDB = await Usuario.findById( uid );
@@ -198,13 +189,9 @@ const resetPasswordConfirm = async (req = request, res = response) => {
         }
         // Actualizaciones
         const {password} = req.body;
-
         // Encriptar contraseña
-
         const salt = bcrypt.genSaltSync();
-
         const passwordHash = bcrypt.hashSync(password, salt);
-
         const usuarioActualizado = await Usuario.findByIdAndUpdate( uid, { password: passwordHash, resetPassword: false }, { new: true } );
 
         res.json({

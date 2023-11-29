@@ -12,7 +12,8 @@ const sendEmailLink = async (email) => {
         return false;
     }
 
-    // const url = `${ process.env.URL_FRONTEND }/auth/reset-password/${ token }`;
+    //  const urlfront = `${process.env.URL_FRONTEND2}/user-actived/${token}`;
+
 
     const url = `${process.env.URL_FRONTEND}/validate-email/validate/${token}`;
 
@@ -48,7 +49,7 @@ const sendEmailLinkResetpassword = async (email) => {
 
      const url = `${ process.env.URL_FRONTEND }/auth/reset-password/${ token }`;
 
-   // const url = `${process.env.URL_FRONTEND}/validate-email/validate/${token}`;
+   //   const urlfront = `${process.env.URL_FRONTEND2}/user-resetpassword/${token}`;
 
     const urlfront = `https://www.cielitoazul.com.ar/user-resetpassword/${token}`;
 
@@ -60,7 +61,7 @@ const sendEmailLinkResetpassword = async (email) => {
         <p>Para poder acceder a tu cuenta, por favor, confirma tu correo electrónico haciendo click en el siguiente enlace:</p>      
         <a href="${urlfront}">Resetea Password</a>
     `;
-    const subject = 'Correo de verificación';
+    const subject = 'Correo de reseteo de password';
     const to = email;
 
     const sent = await sendEmail.sendEmail(to, subject, htmlBody);
