@@ -36,6 +36,9 @@ const UsuarioSchema = Schema({
     google: {
         type: Boolean,
         default: false
+    },    
+    fechanac: {
+        type: Date,       
     },
     createdAt: {
         type: Date,

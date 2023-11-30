@@ -25,7 +25,6 @@ cloudinary.config(process.env.CLOUDINARY_URL);
 
 const uploadFile = async (req, res = response) => {
     const { tipo, id } = req.params;
-
     // Validar tipo
     const tiposValidos = ['productos', 'usuarios', 'categorias', 'articulos'];
 
@@ -80,7 +79,6 @@ const uploadFile = async (req, res = response) => {
 
 const uploadFileCloud = async (req, res = response) => {
     const { tipo, id } = req.params;
-
     // Validar tipo
     const tiposValidos = ['productos' ];
 
@@ -118,8 +116,6 @@ const uploadFileCloud = async (req, res = response) => {
             })
         }
 
-
-
     } catch (error) {
         console.log(error);
         res.status(500).json({
@@ -152,7 +148,7 @@ const uploadSingleFileCloud = async (req, res = response) => {
     const nombreArchivo = secure_url;
     actualizarImagen(tipo, id,nombreArchivo);
     res.json({
-        msg: 'Archivo subido correctamente gggg',
+        msg: 'Archivo subido correctamente',
         nombreArchivo
     })
 
