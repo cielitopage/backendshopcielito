@@ -13,7 +13,7 @@ const { actualizarImagen } = require('../helpers/actualizar-imagen');
 
 const cloudinary = require('cloudinary').v2;
 
-cloudinary.config(process.env.CLOUDINARY_URL);
+cloudinary.config('cloudinary://246122593166633:xN_LMmYnB_crY5DTtRugveYQXlQ@dt48zm2v5');
 
 
 // cloudinary.config({
