@@ -127,66 +127,28 @@ const uploadFileCloud = async (req, res = response) => {
 
 
 
-const uploadSingleFileCloud= async(req, res = response) => {
-    const { tipo, id } = req.params;
-
-    // Validar tipo
-    const tiposValidos = ['productos', 'usuarios', 'categorias','articulos'];
-
-    if (!tiposValidos.includes(tipo)) {
-        return res.status(400).json({
-            msg: 'No es un tipo valido'
-        })
-    }
-
-    // Validar que exista un archivo
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).json({
-            msg: 'No hay ningun archivo cargado'
-        })
-    }
- 
-   try {
-    const {tempFilePath} = req.files.imagen
-    const {secure_url} = await cloudinary.uploader.upload(tempFilePath,{folder:tipo});
-    const nombreArchivo = secure_url;
-    actualizarImagen(tipo, id,nombreArchivo);
-    res.json({
-        msg: 'Archivo subido correctamente',
-        nombreArchivo
-    })
-
-   }    catch (error) {      
-        console.log(error);
-        res.status(500).json({
-            msg: 'Error al subir la imagen',
-            error
-        })
-    }
-}
-
-
-
-
-
-// const uploadSingleFileCloud = async (req, res = response) => {
+// const uploadSingleFileCloud= async(req, res = response) => {
 //     const { tipo, id } = req.params;
+
 //     // Validar tipo
-//     const tiposValidos = [ 'usuarios','categorias', 'articulos'];
+//     const tiposValidos = ['productos', 'usuarios', 'categorias','articulos'];
+
 //     if (!tiposValidos.includes(tipo)) {
 //         return res.status(400).json({
 //             msg: 'No es un tipo valido'
 //         })
 //     }
-//     // Validar que exista dos archivos     
+
+//     // Validar que exista un archivo
 //     if (!req.files || Object.keys(req.files).length === 0) {
-//         console.log("req.files", req.files);
 //         return res.status(400).json({
 //             msg: 'No hay ningun archivo cargado'
 //         })
 //     }
-//     const { tempFilePath } = req.files.imagen;
-//     const { secure_url } = await cloudinary.uploader.upload(tempFilePath, { folder: tipo });
+ 
+//    try {
+//     const {tempFilePath} = req.files.imagen
+//     const {secure_url} = await cloudinary.uploader.upload(tempFilePath,{folder:tipo});
 //     const nombreArchivo = secure_url;
 //     actualizarImagen(tipo, id,nombreArchivo);
 //     res.json({
@@ -194,7 +156,45 @@ const uploadSingleFileCloud= async(req, res = response) => {
 //         nombreArchivo
 //     })
 
+//    }    catch (error) {      
+//         console.log(error);
+//         res.status(500).json({
+//             msg: 'Error al subir la imagen',
+//             error
+//         })
+//     }
 // }
+
+
+
+
+
+const uploadSingleFileCloud = async (req, res = response) => {
+    const { tipo, id } = req.params;
+    // Validar tipo
+    const tiposValidos = [ 'usuarios','categorias', 'articulos'];
+    if (!tiposValidos.includes(tipo)) {
+        return res.status(400).json({
+            msg: 'No es un tipo valido'
+        })
+    }
+    // Validar que exista dos archivos     
+    if (!req.files || Object.keys(req.files).length === 0) {
+        console.log("req.files", req.files);
+        return res.status(400).json({
+            msg: 'No hay ningun archivo cargado'
+        })
+    }
+    const { tempFilePath } = req.files.imagen;
+    const { secure_url } = await cloudinary.uploader.upload(tempFilePath, { folder: tipo });
+    const nombreArchivo = secure_url;
+    actualizarImagen(tipo, id,nombreArchivo);
+    res.json({
+        msg: 'Archivo subido correctamente',
+        nombreArchivo
+    })
+
+}
 
 
 const mostrarImagen = async (req, res = response) => {
