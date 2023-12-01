@@ -77,7 +77,7 @@ const uploadFile = async (req = request, res = response) => {
 
 
 
-const uploadFileCloud = async (req, res = response) => {
+const uploadFileCloud = async (req = request, res = response) => {
     const { tipo, id } = req.params;
     // Validar tipo
     const tiposValidos = ['productos' ];
@@ -169,7 +169,7 @@ const uploadFileCloud = async (req, res = response) => {
 
 
 
-const uploadSingleFileCloud = async (req, res = response) => {
+const uploadSingleFileCloud = async (req = request, res = response) => {
     const { tipo, id } = req.params;
     // Validar tipo
     const tiposValidos = [ 'usuarios','categorias', 'articulos'];
