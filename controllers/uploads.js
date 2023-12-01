@@ -1,6 +1,6 @@
 // uploadFile  getImagen
 require('dotenv').config();
-const { response } = require('express');
+const { response ,request} = require('express');
 
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
@@ -23,7 +23,7 @@ cloudinary.config('cloudinary://246122593166633:xN_LMmYnB_crY5DTtRugveYQXlQ@dt48
 //   });
 
 
-const uploadFile = async (req, res = response) => {
+const uploadFile = async (req = request, res = response) => {
     const { tipo, id } = req.params;
     // Validar tipo
     const tiposValidos = ['productos', 'usuarios', 'categorias', 'articulos'];
