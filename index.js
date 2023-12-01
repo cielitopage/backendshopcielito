@@ -6,11 +6,12 @@ const path = require('path');
 
 
 const app = express();
-const port = process.env.PORT || 3000;
+
 
 // CORS
 app.use( cors() );
 
+const port = process.env.PORT || 3000;
 // Lectura y parseo del body
 app.use(express.json());
 // Directorio publico
